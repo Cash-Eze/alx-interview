@@ -1,49 +1,48 @@
 #!/usr/bin/python3
-"""
-Task: 0. Log Parsing
-File: 0x06-log_parsing/0-stats.py
-"""
-from sys import stdin
+""" Log parsing. """
+import sys
 
 
-def printstats(file_size, status_codes):
-    """
-    This prints statistics at the beginning and every 10 lines
-    This will also be called on a Keyboard interruption
-    """
-    print("File size: " + str(file_size))
-    for code in sorted(status_codes.keys()):
-        if status_codes[code] > 0:
-            print(code + ": " + str(status_codes[code]))
-
-
-line_num = 0
+# Initialize file size, line count and status codes
 file_size = 0
-status_code = 0
+line_count = 0
 status_codes = {"200": 0, "301": 0, "400": 0, "401": 0,
                 "403": 0, "404": 0, "405": 0, "500": 0}
 
+
+def print_stats():
+    """ Print stats. """
+    # Print file size
+    print("File size: {}".format(file_size))
+    # Print status codes
+    for key, value in status_codes.items():
+        if value:
+            print("{}: {}".format(key, value))
+
+
+# Try to read stdin line by line
 try:
-    for line in stdin:
-        line_num += 1
-        split_line = line.split()
-
-        if len(split_line) > 1:
-            file_size += int(split_line[-1])
-
-        if len(split_line) > 2 and split_line[-2].isnumeric():
-            status_code = split_line[-2]
-        else:
-            status_code = 0
-
-        if status_code in status_codes.keys():
-            status_codes[status_code] += 1
-
-        if line_num % 10 == 0:
-            printstats(file_size, status_codes)
-
-    printstats(file_size, status_codes)
-
-except (KeyboardInterrupt):
-    printstats(file_size, status_codes)
+    for line in sys.stdin:
+        # Split line by spaces
+        split = line.split()
+        # Check if split has at least 2 elements
+        if len(split) > 2:
+            # Get file size
+            file_size += int(split[-1])
+            # Get status code
+            status_code = split[-2]
+            # Check if status code is in status_codes
+            if status_code in status_codes:
+                # Increment status code
+                status_codes[status_code] += 1
+        # Increment line count
+        line_count += 1
+        # Check if line count is multiple of 10
+        if line_count % 10 == 0:
+            # Print stats
+            print_stats()
+    print_stats()
+except KeyboardInterrupt:
+    # Print stats
+    print_stats()
     raise
